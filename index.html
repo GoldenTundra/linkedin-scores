@@ -212,7 +212,8 @@
         <a class="open-btn"
            href="https://www.linkedin.com/games/${slug}/results/"
            target="_blank"
-           rel="noopener">Open Results</a>
+           rel="noopener"
+           onclick="lastOpenedSlug='${slug}'">Open Results</a>
       </div>
       <textarea id="score-${slug}" placeholder="Paste ${name} score here…"></textarea>
     `;
@@ -236,6 +237,16 @@
     });
     return kept.join('\n');
   }
+
+  let lastOpenedSlug = null;
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && lastOpenedSlug) {
+      const ta = document.getElementById(`score-${lastOpenedSlug}`);
+      if (ta) ta.focus();
+      lastOpenedSlug = null;
+    }
+  });
 
   function openAll() {
     GAMES.forEach(({ slug }) => {
