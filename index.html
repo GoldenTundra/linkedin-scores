@@ -227,14 +227,12 @@
       }
     });
 
-    const lines = [`LinkedIn Games -- ${dateLabel}`, '', ...scoreLines];
-
     if (!hasScore) {
       showToast('Paste at least one score first');
       return;
     }
 
-    const text = lines.join('\n');
+    const text = `LinkedIn Games -- ${dateLabel}\n\n${scoreLines.join('\n\n')}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text)
