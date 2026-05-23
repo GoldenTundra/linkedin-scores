@@ -193,21 +193,41 @@
     container.appendChild(card);
   });
 
+  // Returns just the meaningful lines from a pasted score block:
+  // keeps the summary line + any hint/perfect lines; strips lnkd.in URLs,
+  // Pinpoint per-guess detail, and filler promotional text.
+  function cleanScore(raw) {
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    if (!lines.length) return '';
+    const kept = [];
+    lines.forEach((line, i) => {
+      if (i === 0) { kept.push(line); return; }
+      if (/^lnkd\.in\//i.test(line)) return;
+      if (/\|\s*\d+%\s*match/i.test(line)) return;
+      const hasGameInfo = /\||\d:\d\d|hint|perfect|🌟|⭐/i.test(line);
+      if (!hasGameInfo && line.length > 55) return;
+      kept.push(line);
+    });
+    return kept.join('\n');
+  }
+
   function copyAll() {
     const dateLabel = now.toLocaleDateString('en-US', {
       month: 'long', day: 'numeric', year: 'numeric'
     });
 
-    const lines = [`LinkedIn Games -- ${dateLabel}`, ''];
+    const scoreLines = [];
     let hasScore = false;
 
     GAMES.forEach(({ name, slug }) => {
       const val = document.getElementById(`score-${slug}`).value.trim();
       if (val) {
-        lines.push(val);
+        scoreLines.push(cleanScore(val));
         hasScore = true;
       }
     });
+
+    const lines = [`LinkedIn Games -- ${dateLabel}`, '', ...scoreLines];
 
     if (!hasScore) {
       showToast('Paste at least one score first');
